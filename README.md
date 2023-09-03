@@ -14,11 +14,11 @@ following goals:
     the player's screen.
 - **Speed**: Just like Rust, the Stirling Engine aims to be fast. Every in-built
     aspect of it is designed to complete as efficiently and as quickly as
-    possible. 
+    possible.
 - **Usability**: It is not fun diving into a heavily complex library with no
     understanding of what is going on. the Stirling Engine thus seeks a level
     of usability that allows development without diving into the minutiae of
-    video game development. 
+    video game development.
 - **Customizability**: At the same time, those who are experienced developers
     that need maximum control over every aspect of their game should be allowed
     it. While a set of default shaders are used in 3D graphics, they can be
@@ -27,7 +27,10 @@ following goals:
     can be ripped out and replaced with something else.
 
 # Plan of Action (Release 0.0)
-1. [X] Game Loop (Accomplished through WGPU)
+1. [ ] Game Loop (Accomplished through WGPU)
+   - [X] Ticking System
+   - [ ] 'Local' Game State
+   - [ ] Scene Stack
 2. [ ] Keyboard Input
 3. [ ] ECS Infrastructure
 4. [ ] 2D Graphics
@@ -39,7 +42,7 @@ following goals:
    - [ ] Mod Loading
      - [ ] Manual Load Order
      - [ ] Dependancy Checking
-   - [ ] Hooks (Custom Systems) 
+   - [ ] Hooks (Custom Systems)
 7. [ ] Game Data
    - [ ] Saving
    - [ ] Loading
