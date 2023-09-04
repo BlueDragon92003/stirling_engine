@@ -92,24 +92,11 @@ impl StirlingEngine {
             }
 
             match event {
-                Event::WindowEvent {
-                    ref event,
-                    window_id,
-                } if window_id == window.id() => match event {
-                    WindowEvent::CloseRequested
-                    | WindowEvent::KeyboardInput {
-                        input:
-                            KeyboardInput {
-                                state: ElementState::Pressed,
-                                virtual_keycode: Some(VirtualKeyCode::Escape),
-                                ..
-                            },
-                        ..
-                    } => {
-                        *control_flow = ControlFlow::Exit;
-                    }
-                    _ => {}
-                },
+                Event::DeviceEvent { device_id, event } => {
+                    self.controls_state.device_event(device_id, event);
+                }
+                Event::WindowEvent { window_id, event } => { }
+                Event::RedrawRequested( window_id ) => { }
                 _ => {}
             }
 
@@ -175,7 +162,7 @@ impl StirlingEngineBuilder {
             this_cycle: Instant::now(),
             tick_time: Duration::from_secs(0),
             tick: 0,
-            controls_state: ControlsState { }
+            controls_state: ControlsState::new(),
         };
         engine.run();
         Ok(())

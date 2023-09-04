@@ -31,7 +31,7 @@ following goals:
    - [X] Ticking System
    - [ ] 'Local' Game State
    - [X] Update Method
-2. [ ] Keyboard Input
+2. [ ] Basic Input
 3. [ ] ECS Infrastructure
 4. [ ] 2D Graphics
 5. [ ] Asset Loading
