@@ -30,7 +30,7 @@ following goals:
 1. [ ] Game Loop (Accomplished through WGPU)
    - [X] Ticking System
    - [ ] 'Local' Game State
-   - [ ] Scene Stack
+   - [X] Update Method
 2. [ ] Keyboard Input
 3. [ ] ECS Infrastructure
 4. [ ] 2D Graphics

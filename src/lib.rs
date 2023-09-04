@@ -1,15 +1,23 @@
 use std::time::{Instant, Duration};
-
+use controls::ControlsState;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
 
+pub mod controls;
+
+pub type UpdateMethod = Box<dyn FnMut(
+    u128, // Ticks
+    &ControlsState  // Controls State
+) -> StirlingEngineControlFlow>;
+
 pub struct StirlingEngine {
     //  Engine Settings
     time_per_tick: Duration,
     watchdog_time: Duration,
+    update: UpdateMethod,
     //  Engine State
     last_cycle: Instant,
     this_cycle: Instant,
@@ -17,20 +25,26 @@ pub struct StirlingEngine {
         //  Allows for the constant running at max tick rate for 4.22x10^28
         //  years, approximately
     tick: u128,
+    controls_state: ControlsState,
 }
 
 pub struct StirlingEngineBuilder {
     tps: Option<u32>,
     watchdog_time: Option<Duration>,
+    update: Option<UpdateMethod>,
 }
 
-pub enum StirlingEngineResult {
-    Closed
-}
-
+#[derive(std::fmt::Debug)]
 pub enum StirlingEngineBuilderError {
     MissingTPS,
     MissingWatchdogTime,
+    MissingUpdateMethod,
+}
+
+pub enum StirlingEngineControlFlow {
+    Run,
+    Pause,
+    Exit
 }
 
 impl StirlingEngine {
@@ -39,6 +53,7 @@ impl StirlingEngine {
         StirlingEngineBuilder {
             tps: None,
             watchdog_time: None,
+            update: None,
         }
     }
 
@@ -90,7 +105,9 @@ impl StirlingEngine {
                                 ..
                             },
                         ..
-                    } => *control_flow = ControlFlow::Exit,
+                    } => {
+                        *control_flow = ControlFlow::Exit;
+                    }
                     _ => {}
                 },
                 _ => {}
@@ -98,7 +115,14 @@ impl StirlingEngine {
 
             for _ in 0..ticks {
                 self.tick += 1;
-                //  Update Method
+                *control_flow = match (self.update)(
+                    self.tick, 
+                    &self.controls_state,
+                ) {
+                    StirlingEngineControlFlow::Run => ControlFlow::Poll,
+                    StirlingEngineControlFlow::Pause => ControlFlow::Wait,
+                    StirlingEngineControlFlow::Exit => ControlFlow::Exit,
+                }
             }
 
 
@@ -110,8 +134,19 @@ impl StirlingEngine {
 
 impl StirlingEngineBuilder {
     
-    pub fn set_tps(mut self, tps: u8) {
-        self.tps = Some(tps.into())
+    pub fn set_tps(mut self, tps: u8) -> Self {
+        self.tps = Some(tps.into());
+        self
+    }
+
+    pub fn set_watchdog_time(mut self, watchdog_time: Duration) -> Self {
+        self.watchdog_time = Some(watchdog_time);
+        self
+    }
+
+    pub fn set_update_method(mut self, update_method: UpdateMethod) -> Self{
+        self.update = Some(update_method);
+        self
     }
 
     pub fn run(self) -> Result<(),StirlingEngineBuilderError> {
@@ -125,15 +160,22 @@ impl StirlingEngineBuilder {
             None => return Err(StirlingEngineBuilderError::MissingWatchdogTime)
         };
 
+        let update = match self.update {
+            Some(update) => update,
+            None => return Err(StirlingEngineBuilderError::MissingUpdateMethod)
+        };
+
         let engine = StirlingEngine {
             //  Engine Settings
             time_per_tick,
             watchdog_time,
+            update,
             //  Enginge State
             last_cycle: Instant::now(),
             this_cycle: Instant::now(),
             tick_time: Duration::from_secs(0),
             tick: 0,
+            controls_state: ControlsState { }
         };
         engine.run();
         Ok(())
