@@ -93,7 +93,7 @@ impl StirlingEngine {
 
             match event {
                 Event::DeviceEvent { device_id, event } => {
-                    self.controls_state.device_event(device_id, event);
+                    self.controls_state.handle_device_event(device_id, event);
                 }
                 Event::WindowEvent { window_id, event } => { }
                 Event::RedrawRequested( window_id ) => { }
